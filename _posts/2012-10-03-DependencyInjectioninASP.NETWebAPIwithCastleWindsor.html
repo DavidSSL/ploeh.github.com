@@ -1,6 +1,6 @@
 ---
 layout: post
-tags: [Castle Windsor, Dependency Injection, Services]
+tags: [Castle Windsor, Dependency Injection, Services, ASP.NET Web API]
 date: 2012-10-03 03:45:22 UTC
 title: "Dependency Injection in ASP.NET Web API with Castle Windsor"
 ---
@@ -17,52 +17,52 @@ title: "Dependency Injection in ASP.NET Web API with Castle Windsor"
 </p>
 <p>
   </p><div style="font-family: Consolas, 'Courier New'; font-size: 10pt; color: black; background: white;">
-<pre style="margin: 0px;"><span style="color: blue;">public</span> <span style="color: blue;">class</span> <span style="color: #2b91af;">WindsorCompositionRoot</span> : <span style="color: #2b91af;">IHttpControllerActivator</span></pre>
-<pre style="margin: 0px;">{</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; <span style="color: blue;">private</span> <span style="color: blue;">readonly</span> <span style="color: #2b91af;">IWindsorContainer</span> container;</pre>
-<pre style="margin: 0px;">&nbsp;</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> WindsorCompositionRoot(<span style="color: #2b91af;">IWindsorContainer</span> container)</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; {</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">this</span>.container = container;</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; }</pre>
-<pre style="margin: 0px;">&nbsp;</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> <span style="color: #2b91af;">IHttpController</span> Create(</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: #2b91af;">HttpRequestMessage</span> request,</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: #2b91af;">HttpControllerDescriptor</span> controllerDescriptor,</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: #2b91af;">Type</span> controllerType)</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; {</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">var</span> controller =</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; (<span style="color: #2b91af;">IHttpController</span>)<span style="color: blue;">this</span>.container.Resolve(controllerType);</pre>
-<pre style="margin: 0px;">&nbsp;</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; request.RegisterForDispose(</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">new</span> <span style="color: #2b91af;">Release</span>(</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; () =&gt; <span style="color: blue;">this</span>.container.Release(controller)));</pre>
-<pre style="margin: 0px;">&nbsp;</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">return</span> controller;</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; }</pre>
-<pre style="margin: 0px;">&nbsp;</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; <span style="color: blue;">private</span> <span style="color: blue;">class</span> <span style="color: #2b91af;">Release</span> : <span style="color: #2b91af;">IDisposable</span></pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; {</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">private</span> <span style="color: blue;">readonly</span> <span style="color: #2b91af;">Action</span> release;</pre>
-<pre style="margin: 0px;">&nbsp;</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> Release(<span style="color: #2b91af;">Action</span> release)</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">this</span>.release = release;</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</pre>
-<pre style="margin: 0px;">&nbsp;</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> <span style="color: blue;">void</span> Dispose()</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">this</span>.release();</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; }</pre>
-<pre style="margin: 0px;">}</pre>
+<pre style="margin: 0px;"><span style="color: blue;">public</span> <span style="color: blue;">class</span> <span style="color: #2b91af;">WindsorCompositionRoot</span> : <span style="color: #2b91af;">IHttpControllerActivator</span>
+{
+&nbsp;&nbsp;&nbsp; <span style="color: blue;">private</span> <span style="color: blue;">readonly</span> <span style="color: #2b91af;">IWindsorContainer</span> container;
+&nbsp;
+&nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> WindsorCompositionRoot(<span style="color: #2b91af;">IWindsorContainer</span> container)
+&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">this</span>.container = container;
+&nbsp;&nbsp;&nbsp; }
+&nbsp;
+&nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> <span style="color: #2b91af;">IHttpController</span> Create(
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: #2b91af;">HttpRequestMessage</span> request,
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: #2b91af;">HttpControllerDescriptor</span> controllerDescriptor,
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: #2b91af;">Type</span> controllerType)
+&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">var</span> controller =
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; (<span style="color: #2b91af;">IHttpController</span>)<span style="color: blue;">this</span>.container.Resolve(controllerType);
+&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; request.RegisterForDispose(
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">new</span> <span style="color: #2b91af;">Release</span>(
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; () =&gt; <span style="color: blue;">this</span>.container.Release(controller)));
+&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">return</span> controller;
+&nbsp;&nbsp;&nbsp; }
+&nbsp;
+&nbsp;&nbsp;&nbsp; <span style="color: blue;">private</span> <span style="color: blue;">class</span> <span style="color: #2b91af;">Release</span> : <span style="color: #2b91af;">IDisposable</span>
+&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">private</span> <span style="color: blue;">readonly</span> <span style="color: #2b91af;">Action</span> release;
+&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> Release(<span style="color: #2b91af;">Action</span> release)
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">this</span>.release = release;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }
+&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> <span style="color: blue;">void</span> Dispose()
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">this</span>.release();
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; }
+}</pre>
 </div>
 <p></p>
 <p>
   That's pretty much all there is to it, but there are a few points of interest here. First of all, the class implements IHttpControllerActivator just like the previous PoorMansCompositionRoot. That's the extensibility point you need to implement in order to create Controller instances. However, instead of hard-coding knowledge of concrete Controller classes into the Create method, you delegate creation of the instance to an injected IWindsorContainer instance. However, before returning the IHttpController instance created by calling container.Resolve, you register that object graph for disposal.
 </p>
 <p>
-  With Castle Windsor decommissioning is done by invoking the Release method on IWindsorContainer. The input into the Release method is the object graph originally created by IWindsorContainer.Resolve. That's the rule from the <a href="http://blog.ploeh.dk/2010/09/29/TheRegisterResolveReleasePattern.aspx">Register Resolve Release pattern</a>: What you Resolve you must also Release. This ensures that if the Resolve method created a disposable instance (even deep in the object graph), the Release method signals to the container that it can now safely dispose of it. You can read more about this subject in <a href="http://affiliate.manning.com/idevaffiliate.php?id=1150_236">my book</a>.
+  With Castle Windsor decommissioning is done by invoking the Release method on IWindsorContainer. The input into the Release method is the object graph originally created by IWindsorContainer.Resolve. That's the rule from the <a href="http://blog.ploeh.dk/2010/09/29/TheRegisterResolveReleasePattern.aspx">Register Resolve Release pattern</a>: What you Resolve you must also Release. This ensures that if the Resolve method created a disposable instance (even deep in the object graph), the Release method signals to the container that it can now safely dispose of it. You can read more about this subject in <a href="http://amzn.to/12p90MG">my book</a>.
 </p>
 <p>
   The <a href="http://msdn.microsoft.com/en-us/library/system.net.http.httprequestmessageextensions.registerfordispose.aspx">RegisterForDispose</a> method takes as a parameter an <a href="http://msdn.microsoft.com/en-us/library/system.idisposable.aspx">IDisposable</a> instance, and not a Release method, so you must wrap the call to the Release method in an IDisposable implementation. That's the little private Release class in the code example. It adapts an <a href="http://msdn.microsoft.com/en-us/library/system.action.aspx">Action delegate</a> into a class which implements IDisposable, invoking the code block when Dispose is invoked. The code block you pass into the constructor of the Release class is a closure around the outer variables <code>this.container</code> and <code>controller</code> so when the Dispose method is called, the container releases the controller (and the entire object graph beneath it).
@@ -73,19 +73,19 @@ title: "Dependency Injection in ASP.NET Web API with Castle Windsor"
 </p>
 <p>
   </p><div style="font-family: Consolas, 'Courier New'; font-size: 10pt; color: black; background: white;">
-<pre style="margin: 0px;"><span style="color: blue;">private</span> <span style="color: blue;">readonly</span> <span style="color: #2b91af;">IWindsorContainer</span> container;</pre>
-<pre style="margin: 0px;">&nbsp;</pre>
-<pre style="margin: 0px;"><span style="color: blue;">public</span> WebApiApplication()</pre>
-<pre style="margin: 0px;">{</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; <span style="color: blue;">this</span>.container =</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">new</span> <span style="color: #2b91af;">WindsorContainer</span>().Install(<span style="color: blue;">new</span> <span style="color: #2b91af;">DependencyConventions</span>());</pre>
-<pre style="margin: 0px;">}</pre>
-<pre style="margin: 0px;">&nbsp;</pre>
-<pre style="margin: 0px;"><span style="color: blue;">public</span> <span style="color: blue;">override</span> <span style="color: blue;">void</span> Dispose()</pre>
-<pre style="margin: 0px;">{</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; <span style="color: blue;">this</span>.container.Dispose();</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; <span style="color: blue;">base</span>.Dispose();</pre>
-<pre style="margin: 0px;">}</pre>
+<pre style="margin: 0px;"><span style="color: blue;">private</span> <span style="color: blue;">readonly</span> <span style="color: #2b91af;">IWindsorContainer</span> container;
+&nbsp;
+<span style="color: blue;">public</span> WebApiApplication()
+{
+&nbsp;&nbsp;&nbsp; <span style="color: blue;">this</span>.container =
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">new</span> <span style="color: #2b91af;">WindsorContainer</span>().Install(<span style="color: blue;">new</span> <span style="color: #2b91af;">DependencyConventions</span>());
+}
+&nbsp;
+<span style="color: blue;">public</span> <span style="color: blue;">override</span> <span style="color: blue;">void</span> Dispose()
+{
+&nbsp;&nbsp;&nbsp; <span style="color: blue;">this</span>.container.Dispose();
+&nbsp;&nbsp;&nbsp; <span style="color: blue;">base</span>.Dispose();
+}</pre>
 </div>
 <p></p>
 <p>
@@ -96,9 +96,9 @@ title: "Dependency Injection in ASP.NET Web API with Castle Windsor"
 </p>
 <p>
   </p><div style="font-family: Consolas, 'Courier New'; font-size: 10pt; color: black; background: white;">
-<pre style="margin: 0px;"><span style="color: #2b91af;">GlobalConfiguration</span>.Configuration.Services.Replace(</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; <span style="color: blue;">typeof</span>(<span style="color: #2b91af;">IHttpControllerActivator</span>),</pre>
-<pre style="margin: 0px;">&nbsp;&nbsp;&nbsp; <span style="color: blue;">new</span> <span style="color: #2b91af;">WindsorCompositionRoot</span>(<span style="color: blue;">this</span>.container));</pre>
+<pre style="margin: 0px;"><span style="color: #2b91af;">GlobalConfiguration</span>.Configuration.Services.Replace(
+&nbsp;&nbsp;&nbsp; <span style="color: blue;">typeof</span>(<span style="color: #2b91af;">IHttpControllerActivator</span>),
+&nbsp;&nbsp;&nbsp; <span style="color: blue;">new</span> <span style="color: #2b91af;">WindsorCompositionRoot</span>(<span style="color: blue;">this</span>.container));</pre>
 </div>
 <p></p>
 <p>
@@ -163,7 +163,7 @@ How about using Windsor/above technique for injecting dependencies into MVC 4 at
 	<div class="comment-date">2012-10-20 12:58 UTC</div>
 </div><div class="comment">
 	<div class="comment-author"><a href="http://blog.ploeh.dk">Mark Seemann</a></div>
-	<div class="comment-content">You can't use the <em>above</em> technique for injecting anything into MVC 4 attributes, since they aren't Controllers. The only way to inject dependencies into MVC attributes is by Property Injection, and if you read section 4.2 of <a href="http://affiliate.manning.com/idevaffiliate.php?id=1150_236">my book</a> you'll see that there are many issues with this pattern.<br>
+	<div class="comment-content">You can't use the <em>above</em> technique for injecting anything into MVC 4 attributes, since they aren't Controllers. The only way to inject dependencies into MVC attributes is by Property Injection, and if you read section 4.2 of <a href="http://amzn.to/12p90MG">my book</a> you'll see that there are many issues with this pattern.<br>
 <br>
 A better approach is <a href="http://stackoverflow.com/a/7194467/126014">to use global filters with behaviour, and use only passive attributes</a>.</div>
 	<div class="comment-date">2012-10-21 13:48 UTC</div>
@@ -235,9 +235,53 @@ wouldn't it be more appropriate to go in Application_Start?<br>
 <br>
 </div>
 	<div class="comment-date">2012-12-07 13:50 UTC</div>
-</div><div class="comment">
+
+</div>
+<div class="comment">
 	<div class="comment-author"><a href="http://blog.ploeh.dk">Mark Seemann</a></div>
 	<div class="comment-content">See previous comments.</div>
 	<div class="comment-date">2012-12-09 19:36 UTC</div>
+</div>
+
+
+<div class="comment">
+	<div class="comment-author"><a href="http://www.redturtle.co.uk">Will Webster</a></div>
+	<div class="comment-content">Thanks for this post. Very useful. Not sure if I am missing something, but having the same issue as the first commentor (Mahesh). What should <em>DependencyConventions()</em> actually do?</div>
+	<div class="comment-date">2013-04-12 16:01 UTC</div>
+</div>
+
+<div class="comment">
+	<div class="comment-author"><a href="http://blog.ploeh.dk">Mark Seemann</a></div>
+	<div class="comment-content">Will, <em>DependencyConventions</em> is just a <a href="http://docs.castleproject.org/Default.aspx?Page=Installers&NS=Windsor&AspxAutoDetectCookieSupport=1">Windsor Installer</a>. I just called it <em>DependencyConventions</em> because <a href="http://blog.ploeh.dk/2012/11/06/WhentouseaDIContainer/">I prefer Convention over Configuration when using DI Containers</a>. In your own project, you'll need to define your own Windsor Installer. Alternatively, you can configure the container directly in the <em>WebApiApplication</em> constructor.</div>
+	<div class="comment-date">2013-04-12 16:00 UTC</div>
+</div>
+
+<div class="comment">
+	<div class="comment-author">Jeff Soper</div>
+	<div class="comment-content">
+		<p>
+		I've been studying this article and some of your answers like <a href="http://stackoverflow.com/a/7194467/533958">this one</a> to StackOverflow questions pertaining to DI. It seems that the established community efforts to integrate popular IoC containers such as <a href="http://www.ninject.org">Ninject</a> are, at their core,<a href="https://github.com/ninject/ninject.web.mvc/blob/master/mvc3/src/Ninject.Web.Mvc/NinjectDependencyResolver.cs">implementations of IDependencyResolver</a>, rather than IHttpControllerActivator.
+		</p>
+		<p>
+		Are these popular community efforts missing the 'access to context' trait of your solution, or are they simply accomplishing it another way? Are there any established projects, open-source or otherwise, that do what you propose, or is this still an untapped 'pull request' opportunity for projects like the Ninject MVC, etc?
+		</p>
+	</div>
+	<div class="comment-date">2014-03-15 17:40 UTC</div>
+</div>
+
+<div class="comment">
+	<div class="comment-author"><a href="http://blog.ploeh.dk">Mark Seemann</a></div>
+	<div class="comment-content">
+		<p>
+			Jeff, thank you for writing. You are indeed correct that one of the many problems with the <a href="http://blog.ploeh.dk/2010/02/03/ServiceLocatorisanAnti-Pattern">Service Locator anti-pattern</a> (and therefore <a href="http://blog.ploeh.dk/2010/11/01/PatternRecognitionAbstractFactoryorServiceLocator">also IDependencyResolver</a>) is that the overall context is hidden. <a href="http://codebetter.com/glennblock/">Glenn Block</a> originally pointed that particular problem out to me.
+		</p>
+		<p>
+		 	This is also the case with IDependencyResolver, because when GetService(Type) or GetServices(Type) is invoked, the only information the composition engine knows, is the requested type. Thus, resolving something that requires access to the HttpRequestMessage or one of its properties, is <em>impossible</em> with IDependencyResolver, but perfectly possible with IHttpControllerActivator.
+		</p>
+		<p>
+			So, yes, I would definitely say that any DI Container that provides 'ASP.NET Web API integration' by implementing IDependencyResolver is missing out. In any case, these days <a href="http://blog.ploeh.dk/2012/11/06/WhentouseaDIContainer">I rarely use a DI Container</a>, so I don't consider it a big deal - and if I need to use a DI Container, I just need to add those few lines of code listed above in this blog post.
+		</p>
+	</div>
+	<div class="comment-date">2014-03-15 18:28 UTC</div>
 </div>
 </div>

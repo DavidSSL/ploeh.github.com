@@ -1,0 +1,158 @@
+---
+layout: post
+title: "Easy ASP.NET Web API DTOs with F# CLIMutable records"
+date: 2013-10-15 22:01 UTC
+tags: [Services, F#, ASP.NET Web API]
+---
+{% include JB/setup %}
+
+<div id="post">
+	<p>
+		<em>With F#, it's easy to create DTOs for use with the ASP.NET Web API, using record types.</em>
+	</p>
+	<p>
+		When writing HTTP (or RESTful) web services with the <a href="http://www.asp.net/web-api">ASP.NET Web API</a>, the most normal approach is to define <a href="http://en.wikipedia.org/wiki/Data_transfer_object">Data Transfer Objects</a> (DTOs), which represents the data structures that go on the wire in the form of JSON or XML. While I usually call these <a href="http://blog.ploeh.dk/2011/05/31/AttheBoundaries,ApplicationsareNotObject-Oriented">boundary objects</a> for <em>renditions</em> (a bit punny), a more normal terminology is, indeed, DTOs.
+	</p>
+	<p>
+		To enable the default .NET serializers (and particularly, <em>de</em>serializers) to do their magic, these DTOs must be mutable and have a default constructor. Not particularly something that seems to fit nicely with F#.
+	</p>
+	<p>
+		Until recently, I've been declaring such DTOs <a href="http://blog.ploeh.dk/2013/08/23/how-to-create-a-pure-f-aspnet-web-api-project">like this</a> in F#:
+	</p>
+	<p>
+		<div style="font-family: Consolas; font-size: 10pt; color: black; background: white;">
+<pre style="margin: 0px;"><span style="color: blue;">type</span> HomeRendition() =
+&nbsp;&nbsp;&nbsp; [&lt;DefaultValue&gt;] <span style="color: blue;">val</span> <span style="color: blue;">mutable</span> Message : string
+&nbsp;&nbsp;&nbsp; [&lt;DefaultValue&gt;] <span style="color: blue;">val</span> <span style="color: blue;">mutable</span> Time : string</pre>
+</div>
+	</p>
+	<p>
+		However, then I discovered the <a href="http://msdn.microsoft.com/en-us/library/hh289724.aspx">[&lt;CLIMutable&gt;] attribute</a>. This effectively turn a standard F# record type into something that can be serialized with the normal .NET serializers. This means that it's possible to redefine the above HomeRendition like this:
+	</p>
+	<p>
+		<div style="font-family: Consolas; font-size: 10pt; color: black; background: white;">
+<pre style="margin: 0px;">[&lt;CLIMutable&gt;]
+<span style="color: blue;">type</span> HomeRendition = {
+&nbsp;&nbsp;&nbsp; Message : string
+&nbsp;&nbsp;&nbsp; Time : string }</pre>
+</div>
+	</p>
+	<p>
+		This is much better, because this looks like a proper immutable record type from the perspective of the F# compiler. However, from a CLI perspective, the HomeRendition class has a default constructor, and mutable properties.
+	</p>
+	<p>
+		A DTO defined like this still works with the ASP.NET Web API, although by default, the serialization looks a bit strange:
+	</p>
+	<p>
+		<div style="font-family: Consolas; font-size: 10pt; color: black; background: white;">
+<pre style="margin: 0px;"><span style="color: blue;">&lt;</span><span style="color: #a31515;">HomeRendition</span><span style="color: blue;">&gt;</span>
+<span style="color: blue;">&nbsp; &lt;</span><span style="color: #a31515;">Message_x0040_</span><span style="color: blue;">&gt;</span>
+&nbsp; &nbsp; This message is served by a pure F# ASP.NET Web API implementation.
+<span style="color: blue;">&nbsp; &lt;/</span><span style="color: #a31515;">Message_x0040_</span><span style="color: blue;">&gt;</span>
+<span style="color: blue;">&nbsp; &lt;</span><span style="color: #a31515;">Time_x0040_</span><span style="color: blue;">&gt;</span>2013-10-15T23:32:42.6725088+02:00<span style="color: blue;">&lt;/</span><span style="color: #a31515;">Time_x0040_</span><span style="color: blue;">&gt;</span>
+<span style="color: blue;">&lt;/</span><span style="color: #a31515;">HomeRendition</span><span style="color: blue;">&gt;</span></pre>
+</div>
+	</p>
+	<p>
+		The reason for that is that the [&lt;CLIMutable&gt;] attribute causes the record type to be compile with auto-generated internal mutable fields, and these are named by appending an @ character - in this case, the field names become <code>Message@</code> and <code>Time@</code>. Since the unicode value for the @ character is x0040, these field names become <code>Message_x0040_</code> and <code>Time_x0040_</code>.
+	</p>
+	<p>
+		Wait a minute! Did I say <em>internal fields?</em> Yes, I did. Then why are the internal fields being serialized instead of the public properties? Well, what can I say, other than the DataContractSerializer once again proves to be a rather poor choice of default serializer. Yet another reason to use a sane XML serializer.
+	</p>
+	<p>
+		No doubt, one of my readers can come up with a good solution for the DataContractSerializer too, but since I always switch my Web API services to use a proper XML serializer, I don't really care:
+	</p>
+	<p>
+		<div style="font-family: Consolas; font-size: 10pt; color: black; background: white;">
+<pre style="margin: 0px;">GlobalConfiguration.Configuration.Formatters.XmlFormatter.UseXmlSerializer &lt;- <span style="color: blue;">true</span></pre>
+</div>
+	</p>
+	<p>
+		Now all is well again:
+	</p>
+	<p>
+		<div style="font-family: Consolas; font-size: 10pt; color: black; background: white;">
+<pre style="margin: 0px;"><span style="color: blue;">&lt;</span><span style="color: #a31515;">HomeRendition</span><span style="color: blue;">&gt;</span>
+<span style="color: blue;">&nbsp; &lt;</span><span style="color: #a31515;">Message</span><span style="color: blue;">&gt;</span>
+&nbsp; &nbsp; This message is served by a pure F# ASP.NET Web API implementation.
+<span style="color: blue;">&nbsp; &lt;/</span><span style="color: #a31515;">Message</span><span style="color: blue;">&gt;</span>
+<span style="color: blue;">&nbsp; &lt;</span><span style="color: #a31515;">Time</span><span style="color: blue;">&gt;</span>2013-10-15T23:50:06.9025322+02:00<span style="color: blue;">&lt;/</span><span style="color: #a31515;">Time</span><span style="color: blue;">&gt;</span>
+<span style="color: blue;">&lt;/</span><span style="color: #a31515;">HomeRendition</span><span style="color: blue;">&gt;</span></pre>
+</div>
+	</p>
+	<p>
+		That's it: much easier, and more robust, Web API DTOs with F# record types. Just apply the [&lt;CLIMutable&gt;] attribute.
+	</p>
+</div>
+
+<div id="comments">
+	<hr>
+	<h2 id="comments-header">
+		Comments
+	</h2>
+	<div class="comment">
+		<div class="comment-author">
+			<a href="http://blog.patrickmcdonald.org">Patrick McDonald</a>
+		</div>
+		<div class="comment-content">
+			<p>
+				Hi Mark, thanks for this, I blogged about serialization of record types
+				<a href="http://blog.patrickmcdonald.org/2012/10/f-record-serialization-in-asp-net-web-api/">last year</a>.
+				the only way I could get XML serialization to work nicely with the DataContractSerializer was to put a DataMember attribute
+				on each field of the record and a DataContract attribute on the record itself.
+			</p>
+			<p>
+				JSON serialization can be handled nicely by default in WEP API however by annotating the class with
+				JsonObject(MemberSerialization=MemberSerialization.OptOut).  I have checked and by combining our 2 methods the WEB API can
+				serialize nicely as both JSON and XML.
+			</p>
+		</div>
+		<div class="comment-date">2013-10-16 12:54 UTC</div>
+	</div>
+	<div class="comment">
+		<div class="comment-author"><a href="http://blog.ploeh.dk">Mark Seemann</a></div>
+		<div class="comment-content">
+			<p>
+				Hi Patrick, thank you for writing. For JSON serialization, I usually just add this configuration:
+			</p>
+			<p>
+				<div style="font-family: Consolas; font-size: 10pt; color: black;">
+<pre style="margin: 0px;">config.Formatters.JsonFormatter.SerializerSettings.ContractResolver &lt;-
+&nbsp;&nbsp;&nbsp; Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()</pre>
+</div>
+			</p>
+			<p>
+				This not only gives the JSON idiomatic casing, but also renders CLIMutable F# records nicely.
+			</p>
+		</div>
+		<div class="comment-date">2013-10-16 19:38 UTC</div>
+	</div>
+	<div class="comment">
+		<div class="comment-author">
+			<a href="http://evolutionarydeveloper.blogspot.co.uk/">Nick Blair</a>
+		</div>
+		<div class="comment-content">
+			<p>
+				Any thoughts on trying to return a Discriminated Union with an F# WebAPI controller? I notice that asp.net throws a
+				runtime InvalidOperationException when you try to do this. Furthermore, the CLIMutable Attribute isn't even allowed
+				on a DU. I find this counter intuitve, however, as you can work with F# DUs in C# code and determine the type using the
+				Tag propery that is visible only in C#/VB.net. Why can't this Tag property be serialized and returned as part of a DU DTO?
+			</p>
+		</div>
+		<div class="comment-date">2013-12-27 20:10 UTC</div>
+	</div>
+	<div class="comment">
+		<div class="comment-author">
+			<a href="http://blog.ploeh.dk">Mark Seemann</a>
+		</div>
+		<div class="comment-content">
+			<p>
+				Nick, I haven't tried returning a Discriminated Union from a Web API Controller. Why would I want to do that? As I've previously described, <a href="http://blog.ploeh.dk/2011/05/31/AttheBoundaries,ApplicationsareNotObject-Oriented">at the boundaries, applications aren't object-oriented</a>, and similarly, they aren't functional either. What would it mean to return a Discriminated Union? How would it render as JSON or XML?
+			</p>
+			<p>
+				Apart from that, I have no idea how a Discriminated Union compiles to IL...
+			</p>
+		</div>
+		<div class="comment-date">2013-12-29 9:07 UTC</div>
+	</div>
+</div>

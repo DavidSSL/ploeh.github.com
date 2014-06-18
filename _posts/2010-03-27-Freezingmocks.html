@@ -54,4 +54,29 @@ However, I can certainly understand your concern about unnecessary cruft. If we 
 This means that I never explicitly setup mocks for all the dependencies needed by a SUT unless I actually need to configure it. AutoFixture will simply analyze the SUT's constructor and ask Moq (or potentially any another dymamic mock) to provide an instance. This approach works really well, but I have yet to blog about it because the AutoFixture API that supports automocking has not yet solidified. However, for hints on how to do this with the current version, see <a href="http://autofixture.codeplex.com/Thread/View.aspx?ThreadId=74061">this discussion</a>.</div>
 	<div class="comment-date">2010-03-28 09:02 UTC</div>
 </div>
+<div class="comment">
+	<div class="comment-author">Wes</div>
+	<div class="comment-content">I think there is a problem with the code sample you provided. I looked at the source code and did a small test. 
+	<br/>I think the following is what you meant (or maybe this article i
+	<br/><pre>// does not work
+var td = new Mock<T>();
+fixture.Register(td.Object);
+
+// should work
+fixture.Inject(td.Object);
+
+fixture.Register(() => td.object);</pre></div>
+	<div class="comment-date">2014-05-14 14:24 UTC</div>
+</div>
+
+<div class="comment">
+	<div class="comment-author"><a href="http://blog.ploeh.dk">Mark Seemann</a></div>
+	<div class="comment-content">
+		<p>
+			Wes, thank you for writing. You are indeed correct that this particular overload of the Register method no longer exists, and Inject is the correct method to use. See <a href="http://stackoverflow.com/a/18172472/126014">this Stack Overflow answer</a> for more details.
+		</p>
+	</div>
+	<div class="comment-date">2014-05-15 09:33 UTC</div>
+</div>
+
 </div>
